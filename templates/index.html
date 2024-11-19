@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+
+    <title>SYNAPSE</title>
+
+   <style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-image: url('https://thumbs.dreamstime.com/z/ai-chatbot-artificial-intelligence-robot-chat-dialog-box-technology-background-ai-chatbot-concept-vector-illustration-ep-ai-276038284.jpg?ct=jpeg'); 
+        background-size: cover;
+        background-position: center center;
+        background-attachment: fixed;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        height: 100vh;
+        margin: 0;
+    }
+    
+    .header {
+        text-align: center;
+        padding: 20px;
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+        width: 100%;
+    }
+    
+    .header h1 {
+        margin: 0;
+        font-size: 2.5em;
+    }
+    
+    .header p {
+        margin: 5px;
+        font-size: 1.2em;
+    }
+    
+    .chat-container {
+        width: 500px;
+        background: linear-gradient(to bottom, rgba(245, 245, 235, 0.9), rgba(255, 255, 255, 0.4)),
+            url('https://cdn.uc.assets.prezly.com/8d9a5bac-16bc-4eab-998e-9cfed80fc22b/-/quality/best/-/format/auto/');
+        background-size: cover;
+        background-position: center;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        animation: fadeIn 1s ease-in-out;
+        max-height: 80vh;
+        margin-top: 20px;
+    }
+    
+    .chat-box {
+        border-bottom: 1px solid #ccc;
+        padding: 10px;
+        height: 400px;
+        overflow-y: auto;
+        background-color: rgba(255, 255, 255, 0.5);
+        flex-grow: 1;
+        scroll-behavior: smooth;
+    }
+    
+    .chat-box div {
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .chat-box div.user {
+        justify-content: flex-end;
+    }
+    
+    .chat-box div.bot {
+        justify-content: flex-start;
+    }
+    
+    .chat-box div b {
+        color: #007bff;
+        margin-right: 8px;
+    }
+    
+    .chat-box div span {
+        background-color: #afbecc;
+        padding: 8px 12px;
+        border-radius: 20px;
+        display: inline-block;
+    }
+    
+    .chat-box div.user span {
+        background-color: rgb(152, 188, 236) !important;
+        color: black ;
+    }
+    
+    .input-container {
+        display: flex;
+        border-top: 1px solid #ccc;
+        background: #fff;
+    }
+    
+    .input-box {
+        flex-grow: 1;
+        padding: 12px;
+        border: none;
+        outline: none;
+        font-size: 16px;
+        border-radius: 0 0 0 10px;
+    }
+    
+    .send-btn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        cursor: pointer;
+        border-radius:19px;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+    
+    .send-btn:hover {
+        background-color: aquamarine;
+        color: black !important;
+    }
+    
+    .microphone-btn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 12px;
+        cursor: pointer;
+        border-radius: 50%;
+        font-size: 24px;
+        transition: background-color 0.3s;
+    }
+    
+    .microphone-btn:hover {
+        background-color: aquamarine;
+    }
+    
+    .popup {
+        display: none; /* Ensure the popup is hidden on first run */
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border-radius: 8px solid cyan;
+        text-align: center;
+    }
+    
+    .popup button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .popup button:hover {
+        background-color: #00ffea;
+        color:black !important;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+   </style>
+
+</head>
+<body>
+    <div class="header">
+        <h1>SYNAPSE : An AI Powered ChatBot</h1>
+        <p>Project created by: Aman Verma, Pragya Vyas, Mahak Jaiswal, Akshat Jain</p>
+    </div>
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box"></div>
+        <div class="input-container">
+            <input type="text" id="user-input" class="input-box" placeholder="Type a message..." onkeypress="if(event.keyCode == 13) sendMessage()">
+            <button class="send-btn" onclick="sendMessage()">Send</button>
+            <button class="microphone-btn" onclick="startSpeechRecognition()">🎤</button>
+        </div>
+    </div>
+
+    <div class="popup" id="popup" style="display: none;">
+        <p>Thanks for talking to me, I hope this was helpful to you!</p>
+        <button onclick="restartChat()">Chat Again</button>
+    </div>
+
+    <script>
+        let recognition;
+        let isChatDisabled = false;
+
+        function initializeSpeechRecognition() {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert("Your browser does not support speech recognition.");
+                return;
+            }
+
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = function(event) {
+                const userInput = event.results[0][0].transcript;
+                document.getElementById("user-input").value = userInput;
+                sendMessage();
+            };
+
+            recognition.onerror = function(event) {
+                alert("Error occurred during speech recognition. Please try again.");
+            };
+
+            recognition.onend = function() {
+                recognition.stop();
+            };
+        }
+
+        function startSpeechRecognition() {
+            if (!recognition) {
+                initializeSpeechRecognition();
+            }
+
+            recognition.start();
+        }
+
+        function showPopup() {
+            document.getElementById('popup').style.display = 'block';
+            document.getElementById('user-input').disabled = true;
+            document.querySelector('.send-btn').disabled = true;
+            document.querySelector('.microphone-btn').disabled = true;
+            isChatDisabled = true;
+        }
+
+        function restartChat() {
+            document.getElementById('popup').style.display = 'none';
+            document.getElementById('user-input').disabled = false;
+            document.querySelector('.send-btn').disabled = false;
+            document.querySelector('.microphone-btn').disabled = false;
+            isChatDisabled = false;
+            document.getElementById('chat-box').innerHTML = '';
+        }
+
+        function sendMessage() {
+            if (isChatDisabled) return;
+
+            var userInput = document.getElementById("user-input").value;
+            var chatBox = document.getElementById("chat-box");
+
+            if (userInput.trim() !== "") {
+                const userMessage = document.createElement('div');
+                userMessage.classList.add('user');
+                userMessage.innerHTML = `<span><b>You:</b> ${userInput}</span>`;
+                chatBox.appendChild(userMessage);
+                document.getElementById("user-input").value = "";
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                if (userInput.toLowerCase() === "exit" || userInput.toLowerCase() === "quit") {
+                    showPopup();
+                    return;
+                }
+
+                fetch("/get?msg=" + encodeURIComponent(userInput))
+                    .then(response => response.text())
+                    .then(data => {
+                        const botMessage = document.createElement('div');
+                        botMessage.classList.add('bot');
+                        botMessage.innerHTML = `<span><b>Bot:</b> ${data}</span>`;
+                        chatBox.appendChild(botMessage);
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    })
+                    .catch(error => {
+                        const botMessage = document.createElement('div');
+                        botMessage.classList.add('bot');
+                        botMessage.innerHTML = "<span><b>Bot:</b> Sorry, I encountered an error. Please try again later.</span>";
+                        chatBox.appendChild(botMessage);
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    });
+            } else {
+                alert("Please enter a message.");
+            }
+        }
+
+        document.querySelector('.send-btn').addEventListener('click', sendMessage);
+        document.querySelector('.microphone-btn').addEventListener('click', startSpeechRecognition);
+    </script>
+</body>
+</html>
