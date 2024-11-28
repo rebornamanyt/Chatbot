@@ -66,7 +66,7 @@ pairs = [
 chatbot = Chat(pairs, reflections)
 
 # Google Gemini API key
-os.environ["GEMINI_API_KEY"] = "AIzaSyCUfH7Di5u_pDTvievtwcpU5Ms8gwjuxMw"
+os.environ["GEMINI_API_KEY"] = "AIzaSyBDasIOv14M0v6vKPjdLG9ZgKWdMPstRXw"
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
 # Define the function to get Gemini response
