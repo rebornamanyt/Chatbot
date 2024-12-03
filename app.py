@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 # Predefined responses
 pairs = [
     [
-        r"my name is (.*)|i am (.*)",
+        r"my name is (.*)",
         ["Hello %1, How are you today?"]
     ],
     [
